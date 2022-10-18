@@ -24,7 +24,7 @@ public class GoogleDriveUtil {
         List <Planilha> planilhas = new ArrayList<>();
         File[] arquivos = listarArquivos(googleDrivePath);
         for (File arquivo : arquivos) {
-            if (!arquivo.getName().endsWith(".xls") && !arquivo.getName().endsWith(".xlsx") && !arquivo.getName().endsWith(".gsheet")) {
+            if (!arquivo.getName().endsWith(".xls") && !arquivo.getName().endsWith(".xlsx")) {
                 continue;
             }
 
