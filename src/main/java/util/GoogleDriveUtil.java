@@ -3,9 +3,6 @@ package util;
 import automacao.Planilha;
 import exceptions.ArquivoException;
 import exceptions.MoverPendenciaException;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -89,8 +86,8 @@ public class GoogleDriveUtil {
 
     public static void moverPendencias(List<Planilha> planilhasProcessadas, File source, File dest) throws MoverPendenciaException {
         try {
-            HSSFWorkbook workbook = new HSSFWorkbook();
-            HSSFSheet sheet = workbook.createSheet("Planilhas Processadas");
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            XSSFSheet sheet = workbook.createSheet("Planilhas Processadas");
             int numLinhas = 0;
 
             for (Planilha planilhaProcessada : planilhasProcessadas) {
@@ -98,7 +95,7 @@ public class GoogleDriveUtil {
                     throw new IOException();
                 }
 
-                HSSFRow row = sheet.createRow((short)numLinhas);
+                Row row = sheet.createRow(numLinhas);
                 row.createCell(0).setCellValue(planilhaProcessada.getNome());
                 numLinhas++;
             }
@@ -106,7 +103,6 @@ public class GoogleDriveUtil {
             FileOutputStream fileOut = new FileOutputStream(dest);
             workbook.write(fileOut);
             fileOut.close();
-            workbook.close();
         }
         catch (IOException e) {
             throw new MoverPendenciaException(source);
