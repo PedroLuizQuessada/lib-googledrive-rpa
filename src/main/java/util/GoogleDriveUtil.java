@@ -2,6 +2,7 @@ package util;
 
 import automacao.Planilha;
 import exceptions.ArquivoException;
+import exceptions.GerarPlanilhaException;
 import exceptions.MoverPendenciaException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -106,6 +107,27 @@ public class GoogleDriveUtil {
         }
         catch (IOException e) {
             throw new MoverPendenciaException(source);
+        }
+    }
+
+    public static void gerarPlanilha(File planilha, List<List<String>> infos) throws GerarPlanilhaException {
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            XSSFSheet sheet = workbook.createSheet(planilha.getName());
+
+            for (List<String> linha : infos) {
+                Row row = sheet.createRow(infos.indexOf(linha));
+                for (String info : linha) {
+                    row.createCell(linha.indexOf(info)).setCellValue(info);
+                }
+            }
+
+            FileOutputStream fileOut = new FileOutputStream(planilha);
+            workbook.write(fileOut);
+            fileOut.close();
+        }
+        catch (IOException e) {
+            throw new GerarPlanilhaException(planilha.getName());
         }
     }
 }
