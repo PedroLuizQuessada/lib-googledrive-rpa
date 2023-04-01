@@ -67,26 +67,34 @@ public class GoogleDriveUtil {
 
         for (Row row : sheet) {
             List<String> linha = new ArrayList<>();
-            planilha.addDado(linha);
 
             Iterator<Cell> cellIterator = row.cellIterator();
             while (cellIterator.hasNext()) {
                 Cell cell = cellIterator.next();
+                String valor = "";
 
                 if (recuperarValoresComoTexto) {
-                    linha.add(formatter.formatCellValue(cell));
+                    valor = formatter.formatCellValue(cell);
                 }
                 else {
                     switch (cell.getCellType()) {
                         case NUMERIC:
-                            linha.add(String.valueOf(cell.getNumericCellValue()));
+                            valor = String.valueOf(cell.getNumericCellValue());
                             break;
 
                         case STRING:
-                            linha.add(cell.getStringCellValue());
+                            valor = cell.getStringCellValue();
                             break;
                     }
                 }
+
+                if (valor.length() > 0) {
+                    linha.add(valor);
+                }
+            }
+
+            if (!linha.isEmpty()) {
+                planilha.addDado(linha);
             }
         }
         fileInputStream.close();
