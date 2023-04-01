@@ -5,6 +5,7 @@ import exceptions.ArquivoException;
 import exceptions.GerarPlanilhaException;
 import exceptions.MoverPendenciaException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -18,7 +19,7 @@ import java.util.*;
 
 public class GoogleDriveUtil {
     //planilhas -> linhas -> colunas
-    public static List<Planilha> recuperarPendencias(String googleDrivePath) throws ArquivoException {
+    public static List<Planilha> recuperarPendencias(String googleDrivePath, boolean recuperarValoresComoTexto) throws ArquivoException {
         List <Planilha> planilhas = new ArrayList<>();
         File[] arquivos = listarArquivos(googleDrivePath);
         for (File arquivo : arquivos) {
@@ -27,7 +28,7 @@ public class GoogleDriveUtil {
             }
 
             try {
-                planilhas.add(lerPlanilha(arquivo));
+                planilhas.add(lerPlanilha(arquivo, recuperarValoresComoTexto));
             }
             catch (IOException e) {
                 throw new ArquivoException(arquivo.getPath());
@@ -56,12 +57,13 @@ public class GoogleDriveUtil {
         return diretorio.listFiles();
     }
 
-    private static Planilha lerPlanilha(File arquivo) throws IOException {
+    private static Planilha lerPlanilha(File arquivo, boolean recuperarValoresComoTexto) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(arquivo);
         XSSFWorkbook workbook = new XSSFWorkbook(Files.newInputStream(arquivo.toPath()));
         XSSFSheet sheet = workbook.getSheetAt(0);
         Planilha planilha = new Planilha();
         planilha.setNome(arquivo.getName());
+        DataFormatter formatter = new DataFormatter();
 
         for (Row row : sheet) {
             List<String> linha = new ArrayList<>();
@@ -70,14 +72,20 @@ public class GoogleDriveUtil {
             Iterator<Cell> cellIterator = row.cellIterator();
             while (cellIterator.hasNext()) {
                 Cell cell = cellIterator.next();
-                switch (cell.getCellType()) {
-                    case NUMERIC:
-                        linha.add(String.valueOf(cell.getNumericCellValue()));
-                        break;
 
-                    case STRING:
-                        linha.add(cell.getStringCellValue());
-                        break;
+                if (recuperarValoresComoTexto) {
+                    linha.add(formatter.formatCellValue(cell));
+                }
+                else {
+                    switch (cell.getCellType()) {
+                        case NUMERIC:
+                            linha.add(String.valueOf(cell.getNumericCellValue()));
+                            break;
+
+                        case STRING:
+                            linha.add(cell.getStringCellValue());
+                            break;
+                    }
                 }
             }
         }
